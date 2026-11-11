@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Grapes Leaf Doctor</title>
+<meta name="theme-color" content="#24472f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700&family=Mukta:wght@400;500;700&display=swap">
+<style>
+/* Layout: one narrow column like a field notebook; a vine-green header band, cards only for the four working blocks. */
+:root{
+  --bg:#f3f1ea; --surface:#fffdf7; --ink:#1f2a22; --muted:#5d6a60; --line:#d9d6c8;
+  --vine:#24472f; --vine-soft:#e3ece0; --grape:#6b3a78; --grape-soft:#efe5f2;
+  --ok:#2e7d4f; --warn:#b26a00; --bad:#b3261e; --ok-soft:#e2f1e7; --warn-soft:#fbefd9; --bad-soft:#f9e1df;
+  --display:"Baloo 2","Mukta",system-ui,sans-serif; --body:"Mukta",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a16; --surface:#1c241e; --ink:#e8eee6; --muted:#a3b0a5; --line:#2f3a32;
+  --vine:#9fd0a8; --vine-soft:#22352a; --grape:#d6a8e3; --grape-soft:#33243a;
+  --ok:#7fd39f; --warn:#f1b955; --bad:#ff8a80; --ok-soft:#1f3527; --warn-soft:#3a2e17; --bad-soft:#3d2120; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a16; --surface:#1c241e; --ink:#e8eee6; --muted:#a3b0a5; --line:#2f3a32;
+  --vine:#9fd0a8; --vine-soft:#22352a; --grape:#d6a8e3; --grape-soft:#33243a;
+  --ok:#7fd39f; --warn:#f1b955; --bad:#ff8a80; --ok-soft:#1f3527; --warn-soft:#3a2e17; --bad-soft:#3d2120; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#24472f}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:#24472f;color:#f3f1ea;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.topin{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--display);font-weight:700;font-size:1.3rem;line-height:1.1;flex:1;min-width:0}
+.brand small{display:block;font-family:var(--body);font-weight:400;font-size:.78rem;opacity:.85}
+.lang{display:flex;border:1px solid rgba(243,241,234,.5);border-radius:999px;overflow:hidden}
+.lang button{background:transparent;color:#f3f1ea;border:0;padding:4px 12px;font:500 .9rem var(--body);cursor:pointer}
+.lang button[aria-pressed="true"]{background:#f3f1ea;color:#24472f}
+main{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px;display:grid;gap:16px}
+.banner{background:var(--warn-soft);color:var(--ink);border:1px solid var(--warn);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px;min-width:0}
+h2{font-family:var(--display);font-size:1.25rem;margin:0;line-height:1.2;text-wrap:balance;color:var(--vine)}
+.step{font:500 .75rem var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+p{margin:0}
+.muted{color:var(--muted);font-size:.92rem}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{appearance:none;border:1px solid var(--vine);background:var(--vine);color:var(--surface);border-radius:10px;padding:10px 14px;font:600 1rem var(--body);cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.btn.ghost{background:transparent;color:var(--vine)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,.chip:focus-visible,.lang button:focus-visible,input:focus-visible{outline:3px solid var(--grape);outline-offset:2px}
+label.btn input{display:none}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 6px 4px 4px;display:inline-flex;align-items:center;gap:6px;font:500 .9rem var(--body);cursor:pointer}
+.chip img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.alerts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.al{border-radius:10px;padding:8px 10px;border:1px solid var(--line);min-width:0}
+.al b{display:block;font-size:.9rem;line-height:1.2}
+.al span{font-size:.82rem}
+.lv-0{background:var(--ok-soft)} .lv-1{background:var(--warn-soft);border-color:var(--warn)} .lv-2{background:var(--bad-soft);border-color:var(--bad)}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:.78rem;font-weight:700}
+.lv-0 .pill{background:var(--ok);color:var(--surface)} .lv-1 .pill{background:var(--warn);color:var(--surface)} .lv-2 .pill{background:var(--bad);color:var(--surface)}
+details{border-top:1px solid var(--line);padding-top:8px}
+summary{cursor:pointer;font-weight:600;color:var(--vine)}
+.vsel{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);max-width:100%}
+.outlook{border:1px dashed var(--grape);border-radius:10px;padding:8px 10px;font-size:.9rem;display:grid;gap:2px;background:var(--grape-soft)}.outlook[hidden]{display:none}
+.outlook b{color:var(--grape)}
+.wx{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+.wx th,.wx td{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.wx input{width:5.2em;font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.tablewrap{overflow-x:auto}
+.loc{display:flex;flex-wrap:wrap;gap:8px}
+.loc input{width:7em;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.pics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pics figure{margin:0;display:grid;gap:4px}
+.pics canvas,.pics img{width:100%;aspect-ratio:1;max-width:100%;border-radius:10px;border:1px solid var(--line);background:var(--bg);object-fit:cover}
+figcaption{font-size:.8rem;color:var(--muted)}
+.verdict{border-radius:12px;padding:12px 14px;display:grid;gap:4px}
+.verdict.ok{background:var(--ok-soft)} .verdict.dis{background:var(--grape-soft)} .verdict.ref{background:var(--warn-soft)}
+.verdict .name{font-family:var(--display);font-size:1.45rem;line-height:1.15}
+.meter{position:relative;height:12px;border-radius:6px;background:var(--line);overflow:visible}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:6px;background:var(--vine)}
+.meter u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink)}
+.meterlab{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.probs{display:grid;gap:4px;font-size:.88rem;font-variant-numeric:tabular-nums}
+.probs div{display:grid;grid-template-columns:minmax(0,9em) 1fr 3.4em;gap:8px;align-items:center}
+.probs s{display:block;height:8px;border-radius:4px;background:var(--grape);text-decoration:none}
+.advice{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.qc{font-size:.9rem;border-radius:10px;padding:8px 10px;background:var(--warn-soft)}
+.qc.good{background:var(--ok-soft)}
+.hist{display:grid;gap:8px}
+.hrow{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:.9rem}
+.hrow img{width:44px;height:44px;border-radius:8px;object-fit:cover}
+.hrow time{color:var(--muted);font-size:.8rem;display:block}
+.busy{display:flex;gap:10px;align-items:center;color:var(--muted)}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--vine);animation:sp 0.9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+footer{font-size:.82rem;color:var(--muted);display:grid;gap:6px}
+.ex{font-size:.78rem;color:var(--warn);font-weight:700}
+</style>
+
+</head>
+<body>
+<header class="top"><div class="topin">
+  <div class="brand"><span data-t="app">Grapes Leaf Doctor</span><small data-t="tag">Grape leaf diagnosis for Nashik vineyards</small></div>
+  <div class="lang" role="group" aria-label="Language">
+    <button id="l-en" type="button" aria-pressed="true">EN</button><button id="l-mr" type="button" aria-pressed="false">मराठी</button>
+  </div>
+</div></header>
+
+<main>
+  <div id="demo" class="banner" hidden></div>
+
+  <section class="card" id="wxcard">
+    <div class="step" data-t="s1">Step 1 · This week's weather</div>
+    <h2 data-t="wxh">Disease weather alert</h2>
+    <div class="alerts" id="alerts"></div>
+    <div id="outlook" class="outlook" hidden></div>
+    <p class="muted" id="wxnote"></p>
+    <details id="wxdet">
+      <summary data-t="wxedit">Location and weather source</summary>
+      <p class="muted" data-t="wxhelp">The alert updates itself from weather services whenever the phone is online. Set the vineyard location once. Readings from your own station can be entered below instead.</p>
+      <label class="muted" for="village" data-t="villagel">Village / area</label>
+      <select id="village" class="vsel"></select>
+      <div class="loc">
+        <input id="lat" inputmode="decimal" aria-label="Latitude" value="20.0771">
+        <input id="lon" inputmode="decimal" aria-label="Longitude" value="74.1094">
+        <button class="btn ghost" id="gps" type="button" data-t="gpsb">Use my location</button>
+        <button class="btn ghost" id="fetchwx" type="button" data-t="fetch">Fetch for this place</button>
+      </div>
+      <div class="tablewrap"><table class="wx" id="wxtab"><thead><tr><th data-t="date">Date</th><th data-t="tmean">Mean temp °C</th><th data-t="rh">Mean RH %</th></tr></thead><tbody></tbody></table></div>
+      <div class="row"><button class="btn" id="savewx" type="button" data-t="savewx">Update alert</button><span id="wxmsg" class="muted"></span></div>
+    </details>
+  </section>
+
+  <section class="card" id="leafcard">
+    <div class="step" data-t="s2">Step 2 · Photograph one leaf</div>
+    <h2 data-t="leafh">Check a leaf</h2>
+    <p class="muted" data-t="leafhelp">Hold the phone 20–30 cm above one leaf in daylight, leaf filling most of the frame, no shadow of your hand.</p>
+    <div class="row">
+      <label class="btn"><input id="cam" type="file" accept="image/*" capture="environment"><span data-t="take">Take photo</span></label>
+      <label class="btn ghost"><input id="gal" type="file" accept="image/*"><span data-t="choose">Choose from gallery</span></label>
+    </div>
+    <div class="row" id="samples" aria-label="Sample leaves"></div>
+    <div id="busy" class="busy" hidden><div class="spin"></div><span id="busytxt"></span></div>
+  </section>
+
+  <section class="card" id="rescard" hidden>
+    <div class="step" data-t="s3">Step 3 · Result</div>
+    <div id="qc" class="qc"></div>
+    <div class="pics">
+      <figure><img id="orig" alt=""><figcaption data-t="yourphoto">Your photo</figcaption></figure>
+      <figure><canvas id="leafc" width="224" height="224"></canvas><figcaption data-t="isolated">Leaf as seen by GRACE</figcaption></figure>
+    </div>
+    <div id="verdict" class="verdict"></div>
+    <div>
+      <div class="meterlab"><span data-t="conf">Confidence</span><span id="confv"></span></div>
+      <div class="meter" id="cmeter"><i></i><u></u></div>
+      <div class="meterlab"><span></span><span id="thlab"></span></div>
+    </div>
+    <div class="probs" id="probs"></div>
+    <div id="sevbox">
+      <div class="meterlab"><span data-t="sev">Estimated affected leaf area</span><span id="sevv"></span></div>
+      <div class="meter" id="smeter"><i style="background:var(--grape)"></i><u style="left:10%"></u></div>
+      <div class="meterlab"><span>0%</span><span data-t="sev10">10% line: early vs established</span></div>
+    </div>
+    <div>
+      <h2 data-t="advh">What to do</h2>
+      <ul class="advice" id="advice"></ul>
+    </div>
+    <p class="muted" data-t="label">Choose the product, dose and timing with your extension officer and follow the label and pre-harvest interval.</p>
+    <div class="row"><button class="btn ghost" id="copy" type="button" data-t="copy">Copy summary for agronomist</button><span id="copymsg" class="muted"></span></div>
+    <textarea id="copytxt" hidden></textarea>
+  </section>
+
+  <section class="card" id="histcard">
+    <div class="step" data-t="s4">Records on this phone</div>
+    <h2 data-t="histh">Leaf history</h2>
+    <div class="hist" id="hist"></div>
+    <div class="row"><button class="btn ghost" id="csv" type="button" data-t="csv">Export records (CSV)</button><button class="btn ghost" id="clr" type="button" data-t="clr">Clear records</button><span id="histmsg" class="muted"></span></div>
+  </section>
+
+  <footer>
+    <p data-t="foot1">GRACE: ConvNeXt-T classifier trained on the Niphad Grape Leaf Disease Dataset (healthy, downy mildew, powdery mildew, bacterial leaf spot). It refers a leaf to an agronomist when its calibrated confidence is below the threshold set for 2% error.</p>
+    <p data-t="foot2">Advice follows the ICAR-National Research Centre for Grapes package of practices and the CIB&amp;RC list of products registered for grapes. This app supports, and does not replace, expert advice.</p>
+    <p><a href="privacy.html">Privacy policy / गोपनीयता धोरण</a></p>
+    <p id="ver"></p>
+  </footer>
+</main>
+
+<script src="vendor/ort.wasm.min.js"></script>
+<script>
+"use strict";
+/* ---------------- text ---------------- */
+const TX={en:{
+ app:"Grapes Leaf Doctor",tag:"Grape leaf diagnosis for Nashik vineyards",s1:"Step 1 · This week's weather",wxh:"Disease weather alert",
+ wxedit:"Location and weather source",wxhelp:"The alert updates itself from weather services whenever the phone is online. Set the vineyard location once. Readings from your own station can be entered below instead.",gpsb:"Use my location",villagel:"Village / area",model:"model estimate",fchead:"Next days (forecast)",fcdays:"favourable day(s) of the next",from:"from",fcact:"Plan a protective spray before this spell and check leaves daily.",fcnone:"Forecast for the next 3 days: no disease-favourable weather expected.",gpsplace:"My current location (GPS)",customplace:"Other (type latitude and longitude)",nogps:"Location is not available. Type the latitude and longitude of the vineyard.",auto:"Automatic weather from",upto:"up to",updated:"updated",
+ fetch:"Fetch for this place",date:"Date",tmean:"Mean temp °C",rh:"Mean RH %",savewx:"Update alert",s2:"Step 2 · Photograph one leaf",leafh:"Check a leaf",
+ leafhelp:"Hold the phone 20–30 cm above one leaf in daylight, leaf filling most of the frame, no shadow of your hand.",take:"Take photo",choose:"Choose from gallery",
+ s3:"Step 3 · Result",yourphoto:"Your photo",isolated:"Leaf as seen by GRACE",conf:"Confidence",sev:"Estimated affected leaf area",sev10:"10% line: early vs established",
+ advh:"What to do",label:"Choose the product, dose and timing with your extension officer and follow the label and pre-harvest interval.",copy:"Copy summary for agronomist",
+ s4:"Records on this phone",histh:"Leaf history",csv:"Export records (CSV)",clr:"Clear records",
+ foot1:"GRACE: ConvNeXt-T classifier trained on the Niphad Grape Leaf Disease Dataset (healthy, downy mildew, powdery mildew, bacterial leaf spot). It refers a leaf to an agronomist when its calibrated confidence is below the threshold set for 2% error.",
+ foot2:"Advice follows the ICAR-National Research Centre for Grapes package of practices and the CIB&RC list of products registered for grapes. This app supports, and does not replace, expert advice.",
+ cls:["Healthy","Downy mildew","Powdery mildew","Bacterial leaf spot"],lv:["No alert","Watch","Alert"],days:"favourable days in the last 7",
+ example:"Example week (monsoon, Niphad). Replace with your own readings.",yourwx:"Based on your readings up to",needdays:"Enter at least 3 days to compute the alert.",
+ fetchfail:"Weather could not be downloaded here. Enter the readings by hand.",fetched:"Downloaded from Open-Meteo.",saved:"Alert updated.",
+ sample:"Sample",loading:"Loading the models (first time only)…",isolating:"Finding the leaf…",diagnosing:"Diagnosing…",
+ qcgood:"Photo quality is good.",qcblur:"The photo looks blurred. Hold the phone still and tap the leaf to focus, then retake.",qcdark:"The photo is too dark. Retake in daylight.",
+ qcbright:"The photo is too bright or washed out. Avoid direct glare.",qcsmall:"The photo is very small. Use the camera, not a screenshot.",qcleaf:"No clear leaf was found. Photograph one leaf against the sky, soil or your palm.",
+ refer:"Refer to an agronomist",referwhy:"GRACE is not confident enough to diagnose this leaf automatically.",likely:"Most likely",or:"or",
+ healthyline:"No disease detected.",early:"Early infection",estab:"Established infection",weatherfav:"This week's weather favours this disease.",
+ copied:"Copied. Paste it into WhatsApp or SMS to your agronomist.",copyfail:"Copy was blocked. Select the text below and copy it.",
+ none:"No leaves checked yet on this phone. Your checked leaves will appear here.",cleared:"Records cleared.",exported:"CSV saved.",exportfail:"Saving files is not allowed here.",
+ demo:"Demo build: the model loaded here is a placeholder with random weights, used only to test the app. Its diagnoses are meaningless until the trained GRACE model is installed.",
+ ver:"Model",theta:"Referral threshold"},
+mr:{
+ app:"ग्रेप्स लीफ डॉक्टर",tag:"नाशिकच्या द्राक्षबागांसाठी पानांचे रोगनिदान",s1:"पायरी 1 · या आठवड्याचे हवामान",wxh:"रोगासाठी हवामान इशारा",
+ wxedit:"ठिकाण आणि हवामान स्रोत",wxhelp:"फोन इंटरनेटवर असताना इशारा हवामान सेवांमधून आपोआप अद्ययावत होतो. बागेचे ठिकाण एकदा निवडा. स्वतःच्या हवामान केंद्राच्या नोंदी खाली भरता येतात.",gpsb:"माझे ठिकाण वापरा",villagel:"गाव / परिसर",model:"मॉडेल अंदाज",fchead:"पुढील दिवस (हवामान अंदाज)",fcdays:"अनुकूल दिवस, पुढील",from:"सुरुवात",fcact:"या काळापूर्वी संरक्षक फवारणीचे नियोजन करा आणि पाने रोज तपासा.",fcnone:"पुढील 3 दिवसांचा अंदाज: रोगास अनुकूल हवामान अपेक्षित नाही.",gpsplace:"माझे सध्याचे ठिकाण (GPS)",customplace:"इतर (अक्षांश व रेखांश टाइप करा)",nogps:"ठिकाण उपलब्ध नाही. बागेचे अक्षांश आणि रेखांश टाइप करा.",auto:"आपोआप हवामान:",upto:"दिनांक",updated:"अद्ययावत",
+ fetch:"या ठिकाणासाठी आणा",date:"तारीख",tmean:"सरासरी तापमान °C",rh:"सरासरी आर्द्रता %",savewx:"इशारा अद्ययावत करा",s2:"पायरी 2 · एका पानाचा फोटो घ्या",leafh:"पान तपासा",
+ leafhelp:"दिवसाच्या उजेडात फोन पानापासून 20–30 सें.मी. वर धरा; पान फ्रेमचा बहुतेक भाग व्यापेल असे ठेवा, हाताची सावली पडू देऊ नका.",take:"फोटो काढा",choose:"गॅलरीतून निवडा",
+ s3:"पायरी 3 · निकाल",yourphoto:"तुमचा फोटो",isolated:"GRACE ला दिसलेले पान",conf:"खात्री",sev:"पानाचा अंदाजे बाधित भाग",sev10:"10% रेषा: सुरुवातीचा विरुद्ध वाढलेला प्रादुर्भाव",
+ advh:"काय करावे",label:"उत्पादन, मात्रा आणि वेळ कृषी विस्तार अधिकाऱ्यांशी ठरवा आणि लेबलवरील सूचना व काढणीपूर्व कालावधी पाळा.",copy:"कृषितज्ज्ञासाठी सारांश कॉपी करा",
+ s4:"या फोनवरील नोंदी",histh:"पानांचा इतिहास",csv:"नोंदी निर्यात करा (CSV)",clr:"नोंदी पुसा",
+ foot1:"GRACE: निफाड द्राक्ष पान रोग डेटासेटवर (निरोगी, केवडा, भुरी, जिवाणूजन्य ठिपके) प्रशिक्षित ConvNeXt-T वर्गीकरण मॉडेल. त्याची खात्री 2% त्रुटीसाठी ठरवलेल्या मर्यादेपेक्षा कमी असल्यास ते पान कृषितज्ज्ञाकडे पाठवते.",
+ foot2:"सल्ला राष्ट्रीय द्राक्ष संशोधन केंद्र (ICAR) यांच्या शिफारशी आणि द्राक्षासाठी CIB&RC नोंदणीकृत उत्पादनांच्या यादीनुसार आहे. हे ॲप तज्ज्ञ सल्ल्याला पूरक आहे, पर्याय नाही.",
+ cls:["निरोगी","केवडा (डाऊनी मिल्ड्यू)","भुरी (पावडरी मिल्ड्यू)","जिवाणूजन्य ठिपके (बॅक्टेरियल लीफ स्पॉट)"],lv:["इशारा नाही","लक्ष ठेवा","इशारा"],days:"गेल्या 7 दिवसांतील अनुकूल दिवस",
+ example:"उदाहरण आठवडा (पावसाळा, निफाड). तुमच्या नोंदी भरा.",yourwx:"तुमच्या नोंदींनुसार, दिनांक",needdays:"इशाऱ्यासाठी किमान 3 दिवसांच्या नोंदी भरा.",
+ fetchfail:"येथे हवामान डाउनलोड होऊ शकले नाही. नोंदी हाताने भरा.",fetched:"Open-Meteo वरून घेतले.",saved:"इशारा अद्ययावत झाला.",
+ sample:"नमुना",loading:"मॉडेल लोड होत आहेत (फक्त पहिल्यांदा)…",isolating:"पान शोधत आहे…",diagnosing:"निदान करत आहे…",
+ qcgood:"फोटोची गुणवत्ता चांगली आहे.",qcblur:"फोटो अस्पष्ट दिसतो. फोन स्थिर धरा, पानावर टॅप करून फोकस करा आणि पुन्हा फोटो घ्या.",qcdark:"फोटो खूप अंधारा आहे. दिवसाच्या उजेडात पुन्हा घ्या.",
+ qcbright:"फोटो खूप उजळ आहे. थेट चमक टाळा.",qcsmall:"फोटो खूप लहान आहे. स्क्रीनशॉट नव्हे तर कॅमेरा वापरा.",qcleaf:"स्पष्ट पान सापडले नाही. एकच पान आकाश, माती किंवा तळहाताच्या पार्श्वभूमीवर घ्या.",
+ refer:"कृषितज्ज्ञाकडे पाठवा",referwhy:"हे पान आपोआप ओळखण्याइतकी GRACE ला खात्री नाही.",likely:"बहुधा",or:"किंवा",
+ healthyline:"रोग आढळला नाही.",early:"सुरुवातीचा प्रादुर्भाव",estab:"वाढलेला प्रादुर्भाव",weatherfav:"या आठवड्याचे हवामान या रोगास अनुकूल आहे.",
+ copied:"कॉपी झाले. WhatsApp किंवा SMS मध्ये कृषितज्ज्ञाला पाठवा.",copyfail:"कॉपी करता आले नाही. खालील मजकूर निवडून कॉपी करा.",
+ none:"या फोनवर अजून एकही पान तपासलेले नाही. तपासलेली पाने येथे दिसतील.",cleared:"नोंदी पुसल्या.",exported:"CSV जतन झाली.",exportfail:"येथे फाइल जतन करण्यास परवानगी नाही.",
+ demo:"डेमो आवृत्ती: येथे लोड केलेले मॉडेल फक्त ॲप तपासण्यासाठी यादृच्छिक वजनांचे आहे. प्रशिक्षित GRACE मॉडेल बसवेपर्यंत त्याचे निदान अर्थहीन आहे.",
+ ver:"मॉडेल",theta:"संदर्भ मर्यादा"}};
+
+/* Advice (Table 7.3 of the thesis), per class: [early, established, weather, caution] */
+const ADV={en:[
+ {routine:["Continue routine practice and the protective spray schedule.","Scan leaves again whenever the weather alert shows Watch or Alert."]},
+ {early:["Remove infected leaves and open the canopy for air flow.","Give a protective copper spray, such as Bordeaux mixture (0.5–1%) or copper hydroxide."],
+  estab:["Use a systemic fungicide with a contact partner registered for grapes, such as metalaxyl-M + mancozeb, fluopicolide + fosetyl-Al or ametoctradin + dimethomorph.","Follow with a contact spray 3–4 days later and inform your agronomist."],
+  wx:"Spray when leaves stay wet for 2–3 hours after sunrise and check leaves every 3–5 days.",
+  caution:"Do not repeat the same fungicide in consecutive sprays. Avoid copper after fruit set."},
+ {early:["Spray sulphur or potassium bicarbonate.","Reduce canopy density and avoid flood irrigation."],
+  estab:["Use a systemic fungicide from a non-triazole group, such as metrafenone, bupirimate or cyflufenamid, rotating groups.","Inform your agronomist."],
+  wx:"Dry, cloudy spells raise the risk; protect bunches from flowering to veraison.",
+  caution:"Resistance to triazoles and strobilurins is reported in Indian vineyards. Do not spray sulphur above 35 °C."},
+ {early:["Remove and destroy infected leaves.","Avoid wetting the foliage and disinfect pruning tools."],
+  estab:["Use the registered product kasugamycin 5% + copper oxychloride 45% WP.","Alert your agronomist: available products have limited effect on this bacterium."],
+  wx:"Rain and humidity above 90% with temperatures above 24 °C spread the disease; inspect neighbouring vines.",
+  caution:"Use only before flowering. Never use unregistered antibiotics."}],
+mr:[
+ {routine:["नेहमीची काळजी आणि संरक्षक फवारणीचे वेळापत्रक चालू ठेवा.","हवामान इशारा ‘लक्ष ठेवा’ किंवा ‘इशारा’ दाखवल्यावर पाने पुन्हा तपासा."]},
+ {early:["बाधित पाने काढून टाका आणि हवा खेळती राहण्यासाठी वेलीची दाटी कमी करा.","बोर्डो मिश्रण (0.5–1%) किंवा कॉपर हायड्रॉक्साइड यांसारखी संरक्षक तांबेयुक्त फवारणी करा."],
+  estab:["द्राक्षासाठी नोंदणीकृत आंतरप्रवाही आणि संपर्क बुरशीनाशकाचे मिश्रण वापरा, उदा. मेटॅलॅक्सिल-M + मॅन्कोझेब, फ्लुओपिकोलाइड + फोसेटिल-Al किंवा अमेटोक्ट्राडिन + डायमेथोमॉर्फ.","3–4 दिवसांनी संपर्क बुरशीनाशकाची फवारणी करा आणि कृषितज्ज्ञाला कळवा."],
+  wx:"सूर्योदयानंतर 2–3 तास पाने ओली राहत असल्यास फवारणी करा आणि दर 3–5 दिवसांनी पाने तपासा.",
+  caution:"एकच बुरशीनाशक सलग फवारू नका. फळधारणेनंतर तांबेयुक्त औषध टाळा."},
+ {early:["गंधक किंवा पोटॅशियम बायकार्बोनेटची फवारणी करा.","वेलीची दाटी कमी करा आणि पाटपाणी टाळा."],
+  estab:["ट्रायझोल गटाव्यतिरिक्त आंतरप्रवाही बुरशीनाशक वापरा, उदा. मेट्राफेनोन, बुपिरिमेट किंवा सायफ्लुफेनामिड; गट बदलत रहा.","कृषितज्ज्ञाला कळवा."],
+  wx:"कोरडे, ढगाळ हवामान धोका वाढवते; फुलोऱ्यापासून मणी मऊ होईपर्यंत घडांचे संरक्षण करा.",
+  caution:"भारतीय बागांमध्ये ट्रायझोल व स्ट्रोबिल्युरिन गटांना प्रतिकारशक्ती आढळली आहे. 35 °C पेक्षा जास्त तापमानात गंधक फवारू नका."},
+ {early:["बाधित पाने काढून नष्ट करा.","पाने ओली होणे टाळा आणि छाटणीची अवजारे निर्जंतुक करा."],
+  estab:["नोंदणीकृत कासुगामायसिन 5% + कॉपर ऑक्सिक्लोराइड 45% WP वापरा.","कृषितज्ज्ञाला कळवा: उपलब्ध औषधांचा या जिवाणूवर मर्यादित परिणाम होतो."],
+  wx:"पाऊस, 90% पेक्षा जास्त आर्द्रता आणि 24 °C पेक्षा जास्त तापमानात रोग पसरतो; शेजारच्या वेली तपासा.",
+  caution:"फक्त फुलोऱ्यापूर्वी वापरा. अनोंदणीकृत प्रतिजैविके कधीही वापरू नका."}]};
+
+/* ---------------- state and storage ---------------- */
+const st={lang:"en",meta:null,grace:null,leaf:null,wx:null,wxExample:true,hist:[],last:null};
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+const $=id=>document.getElementById(id);
+const t=k=>TX[st.lang][k];
+
+/* ---------------- weather alert (Chapter 5 rules) ---------------- */
+function isoDay(d){return d.toISOString().slice(0,10)}
+function exampleWeek(){const T=[24.1,23.8,24.6,24.9,24.3,23.9,24.4],H=[88,91,90,87,92,89,86];const o=[];const now=new Date();
+  for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);o.push({date:isoDay(d),t:T[6-i],h:H[6-i]})}return o}
+function favFlags(tm,hm){return[(hm>85&&tm>=18&&tm<=25)?1:0,(hm<60&&tm>=21&&tm<=32)?1:0,(hm>90&&tm>24)?1:0]}
+function weekAlert(days){
+  const v=days.filter(d=>isFinite(d.t)&&isFinite(d.h)).sort((a,b)=>a.date<b.date?-1:1);
+  if(v.length<3)return null;
+  const n=[0,0,0];let used=0;
+  for(let i=2;i<v.length;i++){const tm=(v[i].t+v[i-1].t+v[i-2].t)/3,hm=(v[i].h+v[i-1].h+v[i-2].h)/3;const f=favFlags(tm,hm);for(let k=0;k<3;k++)n[k]+=f[k];used++}
+  return{counts:n,levels:n.map(c=>c===0?0:(c<=2?1:2)),last:v[v.length-1].date,used}}
+function renderAlerts(){
+  const a=weekAlert(st.wx);const box=$("alerts");box.innerHTML="";
+  const names=TX[st.lang].cls.slice(1);
+  for(let k=0;k<3;k++){const lv=a?a.levels[k]:0;const d=document.createElement("div");d.className="al lv-"+lv;
+    d.innerHTML=`<b></b><span class="pill"></span> <span></span>`;d.querySelector("b").textContent=names[k];
+    d.querySelector(".pill").textContent=TX[st.lang].lv[lv];d.querySelectorAll("span")[1].textContent=a?`${a.counts[k]} ${t("days")}`:"";box.appendChild(d)}
+  $("wxnote").innerHTML="";const note=document.createElement("span");
+  if(!a)note.textContent=t("needdays");else if(st.wxExample){note.className="ex";note.textContent=t("example")}
+  else if(st.wxSrc){note.textContent=`${t("auto")} ${st.wxSrc.name} (${t("model")}) · ${st.wxSrc.place||(st.wxSrc.lat+", "+st.wxSrc.lon)} · ${t("upto")} ${a.last} · ${t("updated")} ${new Date(st.wxSrc.at).toLocaleString()}`}
+  else note.textContent=`${t("yourwx")} ${a.last}.`;
+  $("wxnote").appendChild(note);renderOutlook()}
+/* next-3-day outlook: trailing 3-day means over observed + forecast days */
+function outlook(){const fc=(st.fc||[]).filter(d=>isFinite(d.t)&&isFinite(d.h));if(!fc.length||st.wxExample)return null;
+  const v=[...st.wx.filter(d=>isFinite(d.t)&&isFinite(d.h)).sort((a,b)=>a.date<b.date?-1:1),...fc];const n=[0,0,0],first=[null,null,null];
+  for(let i=v.length-fc.length;i<v.length;i++){if(i<2)continue;const tm=(v[i].t+v[i-1].t+v[i-2].t)/3,hm=(v[i].h+v[i-1].h+v[i-2].h)/3;const f=favFlags(tm,hm);
+    for(let k=0;k<3;k++)if(f[k]){n[k]++;if(!first[k])first[k]=v[i].date}}return{n,first,days:fc.length}}
+function renderOutlook(){const o=outlook(),box=$("outlook");if(!o||!o.n.some(x=>x)){box.hidden=true;if(o){box.hidden=false;box.innerHTML="";const p=document.createElement("span");p.textContent=t("fcnone");box.appendChild(p)}return}
+  box.hidden=false;box.innerHTML="";const h=document.createElement("b");h.textContent=t("fchead");box.appendChild(h);
+  o.n.forEach((c,k)=>{if(!c)return;const s=document.createElement("span");s.textContent=`${TX[st.lang].cls[k+1]}: ${c} ${t("fcdays")} ${o.days} (${t("from")} ${o.first[k]}). ${t("fcact")}`;box.appendChild(s)})}
+const PLACES=[["Niphad (study vineyard)",20.0771,74.1094],["Pimpalgaon Baswant",20.17,73.99],["Lasalgaon",20.15,74.24],["Ozar",20.10,73.93],["Chandwad",20.33,74.25],["Dindori",20.20,73.83],["Sinnar",19.85,74.00],["Nashik",20.00,73.79]];
+function placeName(){const v=$("village").value;return v==="gps"?t("gpsplace"):(v==="custom"?`${$("lat").value}, ${$("lon").value}`:PLACES[+v][0])}
+function renderPlaces(sel){const s=$("village");s.innerHTML="";PLACES.forEach((p,i)=>{const o=document.createElement("option");o.value=i;o.textContent=p[0];s.appendChild(o)});
+  for(const [v,k] of [["gps","gpsplace"],["custom","customplace"]]){const o=document.createElement("option");o.value=v;o.textContent=t(k);s.appendChild(o)}s.value=sel??"0"}
+function renderWxTable(){const tb=$("wxtab").querySelector("tbody");tb.innerHTML="";
+  st.wx.forEach((d,i)=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${d.date}</td><td><input id="wt${i}" inputmode="decimal" aria-label="temperature ${d.date}"></td><td><input id="wh${i}" inputmode="decimal" aria-label="humidity ${d.date}"></td>`;
+    tb.appendChild(tr);$("wt"+i).value=isFinite(d.t)?d.t:"";$("wh"+i).value=isFinite(d.h)?d.h:""})}
+function readWxTable(){st.wx=st.wx.map((d,i)=>({date:d.date,t:parseFloat($("wt"+i).value),h:parseFloat($("wh"+i).value)}))}
+/* automatic weather: Open-Meteo (updated daily, includes today) -> NASA POWER (official NASA agroclimatology, 2-7 day lag) -> last saved */
+async function getOpenMeteo(lat,lon){const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_mean,relative_humidity_2m_mean&past_days=7&forecast_days=4&timezone=Asia%2FKolkata`;
+  const r=await fetch(u);if(!r.ok)throw new Error(r.status);const j=await r.json();const today=isoDay(new Date());
+  const all=j.daily.time.map((d,i)=>({date:d,t:+j.daily.temperature_2m_mean[i],h:+j.daily.relative_humidity_2m_mean[i]})).filter(d=>isFinite(d.t)&&isFinite(d.h));
+  const obs=all.filter(d=>d.date<=today).slice(-7);st.fc=all.filter(d=>d.date>today).slice(0,3);return obs}
+async function getPower(lat,lon){st.fc=[];const e=new Date(),b=new Date();b.setDate(e.getDate()-16);const f=d=>isoDay(d).replace(/-/g,"");
+  const u=`https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,RH2M&community=AG&latitude=${lat}&longitude=${lon}&start=${f(b)}&end=${f(e)}&format=JSON`;
+  const r=await fetch(u);if(!r.ok)throw new Error(r.status);const j=await r.json();const T=j.properties.parameter.T2M,H=j.properties.parameter.RH2M;
+  return Object.keys(T).sort().map(k=>({date:`${k.slice(0,4)}-${k.slice(4,6)}-${k.slice(6)}`,t:T[k],h:H[k]})).filter(d=>d.t>-900&&d.h>-900).slice(-7)}
+async function fetchWx(manual){const lat=parseFloat($("lat").value),lon=parseFloat($("lon").value);if(manual)$("wxmsg").textContent="…";
+  for(const [name,fn] of [["Open-Meteo",getOpenMeteo],["NASA POWER",getPower]]){
+    try{const o=await fn(lat,lon);if(o.length<3)continue;st.wx=o;st.wxExample=false;st.wxSrc={name,at:new Date().toISOString(),lat,lon,place:placeName()};
+      ls.set("gld_wx",{days:o,src:st.wxSrc,fc:st.fc||[]});renderWxTable();renderAlerts();if(st.last)renderResult();if(manual)$("wxmsg").textContent=t("fetched")+" "+name;return true}catch(e){}}
+  if(manual)$("wxmsg").textContent=t("fetchfail");return false}
+function useMyLocation(){if(!navigator.geolocation){$("wxmsg").textContent=t("nogps");return}
+  navigator.geolocation.getCurrentPosition(p=>{$("lat").value=p.coords.latitude.toFixed(4);$("lon").value=p.coords.longitude.toFixed(4);$("village").value="gps";ls.set("gld_loc",{lat:+$("lat").value,lon:+$("lon").value,sel:"gps"});fetchWx(true)},
+    ()=>{$("wxmsg").textContent=t("nogps")},{timeout:10000,maximumAge:86400000})}
+
+/* ---------------- models ---------------- */
+let modelsReady=null;
+function loadModels(){if(modelsReady)return modelsReady;modelsReady=(async()=>{
+  ort.env.wasm.wasmPaths=new URL("vendor/",location.href).href;ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;
+  const meta=await (await fetch("models/grace_meta.json")).json();st.meta=meta;
+  const get=p=>fetch("models/"+p).then(r=>{if(!r.ok)throw new Error("model file "+p);return r});
+  const join=bufs=>{const len=bufs.reduce((s,b)=>s+b.byteLength,0),u=new Uint8Array(len);let o=0;for(const b of bufs){u.set(b,o);o+=b.byteLength}return u};
+  const b64=s=>{const bin=atob(s.trim()),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u};
+  /* binary files on a normal web host; base64 text parts where binary files cannot be served */
+  const load=async(bin,txt)=>txt?b64((await Promise.all(txt.map(p=>get(p).then(r=>r.text())))).join("")):join(await Promise.all(bin.map(p=>get(p).then(r=>r.arrayBuffer()).then(b=>new Uint8Array(b)))));
+  st.grace=await ort.InferenceSession.create(await load(meta.parts,meta.b64_parts),{executionProviders:["wasm"]});
+  st.leaf=await ort.InferenceSession.create(await load(["u2netp.onnx"],meta.leaf_b64_parts),{executionProviders:["wasm"]});
+  showMeta()})();return modelsReady}
+function showMeta(){const m=st.meta;if(!m)return;$("demo").hidden=!m.demo;$("demo").textContent=t("demo");
+  $("ver").textContent=`${t("ver")}: ${m.model}${m.demo?" (demo)":""} · ${m.version} · T = ${(+m.T).toFixed(3)} · ${t("theta")} θ = ${(+m.theta).toFixed(3)}`}
+
+/* ---------------- image helpers ---------------- */
+function canvas(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;return c}
+async function toBitmap(src){if(src instanceof Blob){try{return await createImageBitmap(src,{imageOrientation:"from-image"})}catch(e){return await createImageBitmap(src)}}
+  const im=new Image();im.src=src;await im.decode();return im}
+function fit(bmp,maxSide){const w=bmp.width,h=bmp.height,s=Math.min(1,maxSide/Math.max(w,h));const c=canvas(Math.round(w*s),Math.round(h*s));
+  const g=c.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(bmp,0,0,c.width,c.height);return c}
+function quality(c,origMin){const s=canvas(256,256),g=s.getContext("2d",{willReadFrequently:true});g.drawImage(c,0,0,256,256);
+  const d=g.getImageData(0,0,256,256).data,Y=new Float32Array(256*256);let m=0;
+  for(let i=0;i<Y.length;i++){Y[i]=0.299*d[4*i]+0.587*d[4*i+1]+0.114*d[4*i+2];m+=Y[i]}m/=Y.length;
+  let s1=0,s2=0,n=0;for(let y=1;y<255;y++)for(let x=1;x<255;x++){const i=y*256+x;const L=4*Y[i]-Y[i-1]-Y[i+1]-Y[i-256]-Y[i+256];s1+=L;s2+=L*L;n++}
+  const lapVar=s2/n-(s1/n)**2;const issues=[];if(origMin<300)issues.push("qcsmall");if(m<45)issues.push("qcdark");if(m>225)issues.push("qcbright");if(lapVar<40)issues.push("qcblur");
+  return{mean:m,lapVar,issues}}
+/* leaf isolation with U2-Net-p (rembg normalisation) */
+async function leafMask(c){const S=320,s=canvas(S,S),g=s.getContext("2d",{willReadFrequently:true});g.drawImage(c,0,0,S,S);const d=g.getImageData(0,0,S,S).data;
+  let mx=0;for(let i=0;i<S*S;i++)mx=Math.max(mx,d[4*i],d[4*i+1],d[4*i+2]);mx=mx||1;
+  const M=[0.485,0.456,0.406],SD=[0.229,0.224,0.225],x=new Float32Array(3*S*S);
+  for(let i=0;i<S*S;i++)for(let k=0;k<3;k++)x[k*S*S+i]=(d[4*i+k]/mx-M[k])/SD[k];
+  const out=await st.leaf.run({[st.leaf.inputNames[0]]:new ort.Tensor("float32",x,[1,3,S,S])});const p=out[st.leaf.outputNames[0]].data;
+  let lo=Infinity,hi=-Infinity;for(const v of p){if(v<lo)lo=v;if(v>hi)hi=v}const r=(hi-lo)||1;
+  const m=new Uint8Array(S*S);for(let i=0;i<S*S;i++)m[i]=((p[i]-lo)/r)>0.5?1:0;
+  /* keep the largest connected region */
+  const lab=new Int32Array(S*S),q=new Int32Array(S*S);let best=0,bestLab=0,cur=0;
+  for(let i=0;i<S*S;i++){if(!m[i]||lab[i])continue;cur++;let h=0,tl=0;q[tl++]=i;lab[i]=cur;let cnt=0;
+    while(h<tl){const j=q[h++];cnt++;const y=(j/S)|0,xx=j%S;for(const k of [j-1,j+1,j-S,j+S]){if(k<0||k>=S*S)continue;if((k===j-1&&xx===0)||(k===j+1&&xx===S-1))continue;if(m[k]&&!lab[k]){lab[k]=cur;q[tl++]=k}}}
+    if(cnt>best){best=cnt;bestLab=cur}}
+  let x0=S,y0=S,x1=-1,y1=-1;const keep=new Uint8Array(S*S);
+  for(let i=0;i<S*S;i++)if(lab[i]===bestLab&&best>0){keep[i]=1;const y=(i/S)|0,xx=i%S;if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}
+  return{S,keep,area:best/(S*S),box:[x0,y0,x1,y1]}}
+const BG=[205,203,200];
+function composeLeaf(c,lm){/* crop a square around the leaf, put it on the plain NGLD-like background */
+  const S=lm.S,sx=c.width/S,sy=c.height/S;let[x0,y0,x1,y1]=lm.box;
+  if(x1<0){x0=0;y0=0;x1=S-1;y1=S-1}
+  let cx=(x0+x1+1)/2*sx,cy=(y0+y1+1)/2*sy,half=Math.max((x1-x0+1)*sx,(y1-y0+1)*sy)/2*1.08;
+  const mk=canvas(S,S),mg=mk.getContext("2d"),id=mg.createImageData(S,S);for(let i=0;i<S*S;i++){id.data[4*i+3]=lm.keep[i]?255:0}mg.putImageData(id,0,0);
+  const full=canvas(c.width,c.height),fg=full.getContext("2d");fg.drawImage(c,0,0);fg.globalCompositeOperation="destination-in";fg.imageSmoothingEnabled=true;fg.drawImage(mk,0,0,c.width,c.height);
+  const out=canvas(256,256),og=out.getContext("2d");og.fillStyle=`rgb(${BG})`;og.fillRect(0,0,256,256);og.imageSmoothingQuality="high";
+  og.drawImage(full,cx-half,cy-half,2*half,2*half,0,0,256,256);
+  const om=canvas(256,256),omg=om.getContext("2d");omg.drawImage(mk,(cx-half)/sx,(cy-half)/sy,2*half/sx,2*half/sy,0,0,256,256);
+  return{img:out,mask:om}}
+function tensor224(img256){const c=canvas(224,224),g=c.getContext("2d",{willReadFrequently:true});g.imageSmoothingQuality="high";g.drawImage(img256,0,0,224,224);
+  const d=g.getImageData(0,0,224,224).data,N=224*224,x=new Float32Array(3*N);for(let i=0;i<N;i++){x[i]=d[4*i]/255;x[N+i]=d[4*i+1]/255;x[2*N+i]=d[4*i+2]/255}return{x,c}}
+function severity(img256,mask256){const g=img256.getContext("2d",{willReadFrequently:true}).getImageData(0,0,256,256).data,m=mask256.getContext("2d",{willReadFrequently:true}).getImageData(0,0,256,256).data;
+  let leaf=0,dis=0;for(let i=0;i<256*256;i++){if(m[4*i+3]<128)continue;leaf++;const Y=0.299*g[4*i]+0.587*g[4*i+1]+0.114*g[4*i+2];if(Y>=128)dis++}return leaf?100*dis/leaf:0}
+
+/* ---------------- diagnosis ---------------- */
+function busy(on,txt){$("busy").hidden=!on;$("busytxt").textContent=txt||""}
+async function analyse(src,label){
+  try{busy(true,t("loading"));await loadModels();busy(true,t("isolating"));
+    const bmp=await toBitmap(src);const c=fit(bmp,1024);const q=quality(c,Math.min(bmp.width,bmp.height));
+    const lm=await leafMask(c);if(lm.area<0.03)q.issues.push("qcleaf");const comp=composeLeaf(c,lm);
+    busy(true,t("diagnosing"));const{x,c:c224}=tensor224(comp.img);const t0=performance.now();
+    const out=await st.grace.run({image:new ort.Tensor("float32",x,[1,3,224,224])});const ms=performance.now()-t0;
+    const probs=Array.from(out.probs.data);const k=probs.indexOf(Math.max(...probs));const conf=probs[k];const auto=conf>=st.meta.theta;
+    const sev=k>0?severity(comp.img,comp.mask):0;
+    const origURL=src instanceof Blob?URL.createObjectURL(src):src;
+    st.last={when:new Date().toISOString(),probs,k,conf,auto,sev,qc:q,ms,origURL,label,thumb:thumb(comp.img)};
+    $("leafc").getContext("2d").drawImage(c224,0,0);$("orig").src=origURL;$("rescard").hidden=false;renderResult();addHistory(st.last);
+    $("rescard").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+  catch(e){console.error(e);$("busytxt").textContent="Error: "+e.message;return}busy(false)}
+function thumb(c){const s=canvas(72,72);s.getContext("2d").drawImage(c,0,0,72,72);try{return s.toDataURL("image/jpeg",0.7)}catch(e){return""}}
+function weatherFav(k){const a=weekAlert(st.wx);return!!(a&&k>0&&a.levels[k-1]>0)}
+function adviceFor(r){const L=st.lang,A=ADV[L];if(!r.auto){const order=r.probs.map((p,i)=>[p,i]).sort((a,b)=>b[0]-a[0]);
+    return{title:t("refer"),sub:`${t("referwhy")} ${t("likely")}: ${TX[L].cls[order[0][1]]} ${t("or")} ${TX[L].cls[order[1][1]]}.`,items:[],cls:"ref"}}
+  if(r.k===0)return{title:TX[L].cls[0],sub:t("healthyline"),items:A[0].routine,cls:"ok"};
+  const a=A[r.k],est=r.sev>10,items=[...(est?a.estab:a.early)];if(weatherFav(r.k))items.push(t("weatherfav")+" "+a.wx);items.push(a.caution);
+  return{title:TX[L].cls[r.k],sub:est?t("estab"):t("early"),items,cls:"dis"}}
+function renderResult(){const r=st.last;if(!r)return;const L=st.lang;
+  const qc=$("qc");qc.className="qc"+(r.qc.issues.length?"":" good");qc.textContent=r.qc.issues.length?r.qc.issues.map(i=>t(i)).join(" "):t("qcgood");
+  const adv=adviceFor(r);const v=$("verdict");v.className="verdict "+adv.cls;v.innerHTML='<div class="name"></div><div></div>';v.children[0].textContent=adv.title;v.children[1].textContent=adv.sub;
+  $("confv").textContent=(100*r.conf).toFixed(1)+"%";$("cmeter").querySelector("i").style.width=(100*r.conf)+"%";$("cmeter").querySelector("u").style.left=(100*st.meta.theta)+"%";
+  $("thlab").textContent=`${t("theta")} ${(100*st.meta.theta).toFixed(1)}%`;
+  const pb=$("probs");pb.innerHTML="";r.probs.forEach((p,i)=>{const d=document.createElement("div");d.innerHTML="<span></span><span><s></s></span><span></span>";
+    d.children[0].textContent=TX[L].cls[i];d.querySelector("s").style.width=Math.max(1,100*p)+"%";d.children[2].textContent=(100*p).toFixed(1)+"%";pb.appendChild(d)});
+  const sb=$("sevbox");sb.hidden=!(r.auto&&r.k>0);$("sevv").textContent=r.sev.toFixed(1)+"%";$("smeter").querySelector("i").style.width=Math.min(100,r.sev)+"%";
+  const ul=$("advice");ul.innerHTML="";adv.items.forEach(s=>{const li=document.createElement("li");li.textContent=s;ul.appendChild(li)});
+  $("copytxt").value=summaryText(r,adv)}
+function summaryText(r,adv){const L=st.lang;return[`${t("app")} · ${new Date(r.when).toLocaleString()}`,`${adv.title} — ${adv.sub}`,
+  `${t("conf")}: ${(100*r.conf).toFixed(1)}% (${t("theta")} ${(100*st.meta.theta).toFixed(1)}%)`,r.k>0?`${t("sev")}: ${r.sev.toFixed(1)}%`:"",
+  ...r.probs.map((p,i)=>`  ${TX[L].cls[i]}: ${(100*p).toFixed(1)}%`),...adv.items.map(s=>"- "+s)].filter(Boolean).join("\n")}
+
+/* ---------------- history ---------------- */
+function addHistory(r){st.hist.unshift({when:r.when,k:r.k,conf:+r.conf.toFixed(4),auto:r.auto,sev:+r.sev.toFixed(2),qc:r.qc.issues.join("|"),ms:Math.round(r.ms),label:r.label||"",thumb:r.thumb,model:st.meta.model+(st.meta.demo?" demo":"")});
+  st.hist=st.hist.slice(0,200);ls.set("gld_hist",st.hist);renderHist()}
+function renderHist(){const h=$("hist");h.innerHTML="";if(!st.hist.length){const p=document.createElement("p");p.className="muted";p.textContent=t("none");h.appendChild(p);return}
+  st.hist.slice(0,20).forEach(r=>{const d=document.createElement("div");d.className="hrow";d.innerHTML='<img alt=""><div><b></b><time></time></div><span class="pill"></span>';
+    if(r.thumb)d.querySelector("img").src=r.thumb;d.querySelector("b").textContent=r.auto?TX[st.lang].cls[r.k]:t("refer");
+    d.querySelector("time").textContent=new Date(r.when).toLocaleString();const pl=d.querySelector(".pill");pl.textContent=(100*r.conf).toFixed(0)+"%";
+    pl.style.background=r.auto?(r.k?"var(--grape)":"var(--ok)"):"var(--warn)";pl.style.color="var(--surface)";h.appendChild(d)})}
+async function exportCSV(){const rows=[["time","diagnosis","class_index","confidence","auto_diagnosed","severity_pct","quality_flags","inference_ms","sample","model"]]
+  .concat(st.hist.map(r=>[r.when,TX.en.cls[r.k],r.k,r.conf,r.auto,r.sev,r.qc,r.ms,r.label,r.model]));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");const name=`grapes_leaf_records_${isoDay(new Date())}.csv`;
+  try{const dl=window.claude&&await window.claude.use("downloads");if(dl){await dl.save({filename:name,data:csv});$("histmsg").textContent=t("exported");return}}catch(e){}
+  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=name;document.body.appendChild(a);a.click();a.remove();$("histmsg").textContent=t("exported")}
+  catch(e){$("histmsg").textContent=t("exportfail")}}
+
+/* ---------------- language ---------------- */
+function setLang(l){st.lang=l;ls.set("gld_lang",l);document.documentElement.lang=l==="mr"?"mr":"en";
+  $("l-en").setAttribute("aria-pressed",l==="en");$("l-mr").setAttribute("aria-pressed",l==="mr");
+  document.querySelectorAll("[data-t]").forEach(e=>{const v=TX[l][e.dataset.t];if(typeof v==="string")e.textContent=v});
+  if($("village").options.length)renderPlaces($("village").value);renderAlerts();renderHist();renderSamples();showMeta();renderResult()}
+function renderSamples(){const s=$("samples");s.innerHTML="";[["downy",1],["powdery",2],["bls",3],["healthy",0]].forEach(([f,k])=>{
+  const b=document.createElement("button");b.type="button";b.className="chip";b.innerHTML='<img alt=""><span></span>';b.querySelector("img").src=`samples/${f}.jpg`;
+  b.querySelector("span").textContent=`${t("sample")}: ${TX[st.lang].cls[k].split(" (")[0]}`;b.onclick=()=>analyse(`samples/${f}.jpg`,"sample_"+f);s.appendChild(b)})}
+
+/* ---------------- start ---------------- */
+function start(){
+  st.lang=ls.get("gld_lang","en");st.hist=ls.get("gld_hist",[]);const w=ls.get("gld_wx",null);
+  if(w&&w.days&&w.days.length){st.wx=w.days;st.wxExample=false;st.wxSrc=w.src||null;st.fc=w.fc||[]}else{st.wx=exampleWeek();st.wxExample=true;st.fc=[]}
+  const loc=ls.get("gld_loc",null);if(loc){$("lat").value=loc.lat;$("lon").value=loc.lon}
+  renderPlaces(loc&&loc.sel!=null?String(loc.sel):"0");
+  $("village").onchange=()=>{const v=$("village").value;if(v==="gps"){useMyLocation();return}
+    if(v!=="custom"){$("lat").value=PLACES[+v][1];$("lon").value=PLACES[+v][2]}ls.set("gld_loc",{lat:+$("lat").value,lon:+$("lon").value,sel:v});if(v!=="custom")fetchWx(true)};
+  renderWxTable();setLang(st.lang);
+  $("l-en").onclick=()=>setLang("en");$("l-mr").onclick=()=>setLang("mr");
+  $("savewx").onclick=()=>{readWxTable();st.wxExample=false;st.wxSrc=null;st.fc=[];ls.set("gld_wx",{days:st.wx,src:null,fc:[]});renderAlerts();$("wxmsg").textContent=t("saved");if(st.last)renderResult()};
+  $("fetchwx").onclick=()=>{const v=$("village").value;ls.set("gld_loc",{lat:+$("lat").value,lon:+$("lon").value,sel:v});fetchWx(true)};
+  for(const id of["lat","lon"])$(id).oninput=()=>{$("village").value="custom"};$("gps").onclick=useMyLocation;
+  const stale=!st.wxSrc||(Date.now()-new Date(st.wxSrc.at).getTime()>6*3600*1000);if(stale)fetchWx(false);
+  for(const id of["cam","gal"])$(id).onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)analyse(f,"");e.target.value=""};
+  $("copy").onclick=async()=>{const txt=$("copytxt").value;try{await navigator.clipboard.writeText(txt);$("copymsg").textContent=t("copied")}
+    catch(e){const ta=$("copytxt");ta.hidden=false;ta.style.width="100%";ta.rows=8;ta.select();$("copymsg").textContent=t("copyfail")}};
+  $("csv").onclick=exportCSV;$("clr").onclick=()=>{st.hist=[];ls.set("gld_hist",[]);renderHist();$("histmsg").textContent=t("cleared")};
+  loadModels().catch(e=>{$("busy").hidden=false;$("busytxt").textContent="Model load error: "+e.message});
+  if("serviceWorker" in navigator&&location.protocol==="https:"&&!/claude|anthropic/.test(location.hostname)){navigator.serviceWorker.register("sw.js").catch(()=>{})}
+  analyse("samples/downy.jpg","sample_downy");
+}
+start();
+</script>
+</body>
+</html>
